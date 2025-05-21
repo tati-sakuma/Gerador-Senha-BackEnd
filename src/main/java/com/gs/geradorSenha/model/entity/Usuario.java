@@ -1,7 +1,13 @@
 package com.gs.geradorSenha.model.entity;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -17,9 +23,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-@Data
 @Entity
-public class Usuario {
+@Data
+public class Usuario implements UserDetails {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -43,5 +49,24 @@ public class Usuario {
 	@OneToMany(mappedBy = "usuario", fetch = FetchType.EAGER)
 	@JsonManagedReference(value = "usuario-senha")
 	private List<Senha> senhas;
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		List<GrantedAuthority> list = new ArrayList<GrantedAuthority>();
+
+		list.add(new SimpleGrantedAuthority("USER"));
+
+		return list;
+	}
+
+	@Override
+	public String getPassword() {
+		return this.senha;
+	}
+
+	@Override
+	public String getUsername() {
+		return this.email;
+	}
 
 }

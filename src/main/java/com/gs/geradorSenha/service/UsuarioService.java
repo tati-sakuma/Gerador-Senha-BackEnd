@@ -1,17 +1,22 @@
 package com.gs.geradorSenha.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.gs.geradorSenha.auth.AuthService;
-import com.gs.geradorSenha.exception.GsException;
+import com.gs.geradorSenha.exception.GSException;
 import com.gs.geradorSenha.model.entity.Usuario;
 import com.gs.geradorSenha.model.repository.UsuarioRepository;
 
 @Service
-public class UsuarioService {
+public class UsuarioService implements UserDetailsService {
 
 	@Autowired
 	private UsuarioRepository usuarioRepository;
@@ -22,16 +27,25 @@ public class UsuarioService {
 	@Autowired
 	private PasswordEncoder encoder;
 
-	public void cadastrar(Usuario usuario) throws GsException {
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		Usuario usuario = usuarioRepository.findByEmail(username)
+				.orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + username));
+
+		return (UserDetails) usuario;
+	}
+
+	public void cadastrar(Usuario usuario) throws GSException {
 		if (usuarioRepository.existsByEmailIgnoreCase(usuario.getEmail())) {
-			throw new GsException("O e-mail informado já está cadastrado.", HttpStatus.BAD_REQUEST);
+			throw new GSException("O e-mail informado já está cadastrado.", HttpStatus.BAD_REQUEST);
 		}
+		
 		usuarioRepository.save(usuario);
 	}
 
-	public Usuario atualizar(Usuario usuarioASerAtualizado) throws GsException {
+	public Usuario atualizar(Usuario usuarioASerAtualizado) throws GSException {
 		Usuario usuarioExistente = usuarioRepository.findById(usuarioASerAtualizado.getIdUsuario())
-				.orElseThrow(() -> new GsException("Usuário não encontrado.", HttpStatus.NOT_FOUND));
+				.orElseThrow(() -> new GSException("Usuário não encontrado.", HttpStatus.NOT_FOUND));
 
 		usuarioExistente.setNome(usuarioASerAtualizado.getNome());
 		usuarioExistente.setEmail(usuarioASerAtualizado.getEmail());
@@ -44,15 +58,20 @@ public class UsuarioService {
 		return usuarioRepository.save(usuarioExistente);
 	}
 
-	public void excluir(Long idUsuario) throws GsException {
+	public void excluir(Long idUsuario) throws GSException {
 		usuarioRepository.findById(idUsuario)
-				.orElseThrow(() -> new GsException("Usuário não encontrado.", HttpStatus.NOT_FOUND));
+				.orElseThrow(() -> new GSException("Usuário não encontrado.", HttpStatus.NOT_FOUND));
+
 		usuarioRepository.deleteById(idUsuario);
 	}
 
-	public Usuario pesquisarPorId(Long id) throws GsException {
+	public List<Usuario> pesquisarTodos() {
+		return usuarioRepository.findAll();
+	}
+
+	public Usuario pesquisarPorId(Long id) throws GSException {
 		return usuarioRepository.findById(id)
-				.orElseThrow(() -> new GsException("Usuário não encontrado.", HttpStatus.NOT_FOUND));
+				.orElseThrow(() -> new GSException("Usuário não encontrado.", HttpStatus.NOT_FOUND));
 	}
 
 }

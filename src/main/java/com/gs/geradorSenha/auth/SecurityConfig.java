@@ -44,14 +44,7 @@ public class SecurityConfig {
 						auth -> auth
 							// Rotas públicas que não precisam de autenticação
 							.requestMatchers("/auth/*", "/public").permitAll()
-							.requestMatchers("/forgotPassword/**").permitAll()
-							// Rotas de praias que estarão públicas
-							.requestMatchers("/praias/todos").permitAll()
-							.requestMatchers("/praias/{idPraia}").permitAll()
-							.requestMatchers("/praias/filtrar").permitAll()
-							.requestMatchers("/praias/{praiaId}/now").permitAll()
-							.requestMatchers("/praias/{praiaId}/postagens").permitAll()
-							.requestMatchers("/praias/{praiaId}/avaliacoes").permitAll()
+							
 							// Todas as outras rotas requerem autenticação
 							.anyRequest().authenticated())
 				.httpBasic(Customizer.withDefaults()).oauth2ResourceServer(conf -> conf.jwt(Customizer.withDefaults()));

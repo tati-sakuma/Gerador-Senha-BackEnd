@@ -2,8 +2,8 @@ package com.gs.geradorSenha.exception;
 
 import org.springframework.http.HttpStatus;
 
-public class GsException extends Exception {
-	public GsException(String message, HttpStatus badRequest) {
+public class GSException extends Exception {
+	public GSException(String message, HttpStatus badRequest) {
 		super(message);
 	}
 }

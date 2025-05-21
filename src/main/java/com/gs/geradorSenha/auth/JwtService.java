@@ -12,30 +12,40 @@ import org.springframework.stereotype.Service;
 
 import com.gs.geradorSenha.model.entity.Usuario;
 
+
 @Service
 public class JwtService {
 
-	private final JwtEncoder jwtEncoder;
+    private final JwtEncoder jwtEncoder;
 
-	public JwtService(JwtEncoder jwtEncoder) {
-		this.jwtEncoder = jwtEncoder;
-	}
+    public JwtService(JwtEncoder jwtEncoder) {
+        this.jwtEncoder = jwtEncoder;
+    }
 
-	public String generateToken(Authentication subject) {
+    public String generateToken(Authentication subject) {
 
-		Instant now = Instant.now();
+        Instant now = Instant.now();
 
-		long tenHoursInSeconds = 36000L;
+        long tenHoursInSeconds = 36000L;
 
-		String roles = subject.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-				.collect(Collectors.joining(" "));
+        String roles = subject
+                .getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(" "));
 
-		Usuario authenticatedUser = (Usuario) subject.getPrincipal();
+        Usuario authenticatedUser = (Usuario) subject.getPrincipal();
 
-		JwtClaimsSet claims = JwtClaimsSet.builder().issuer("flop").issuedAt(now)
-				.expiresAt(now.plusSeconds(tenHoursInSeconds)).subject(subject.getName()).claim("roles", roles)
-				.claim("idUsuario", authenticatedUser.getIdUsuario()).build();
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuer("flop")
+                .issuedAt(now)
+                .expiresAt(now.plusSeconds(tenHoursInSeconds))
+                .subject(subject.getName())
+                .claim("roles", roles)
+                .claim("idUsuario", authenticatedUser.getIdUsuario())
+                .build();
 
-		return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
-	}
+        return jwtEncoder.encode(
+                JwtEncoderParameters.from(claims)).getTokenValue();
+    }
 }
