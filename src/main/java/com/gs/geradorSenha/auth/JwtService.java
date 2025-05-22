@@ -37,7 +37,7 @@ public class JwtService {
         Usuario authenticatedUser = (Usuario) subject.getPrincipal();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
-                .issuer("flop")
+                .issuer("gs")
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(tenHoursInSeconds))
                 .subject(subject.getName())

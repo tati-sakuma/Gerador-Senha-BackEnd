@@ -39,7 +39,11 @@ public class UsuarioService implements UserDetailsService {
 		if (usuarioRepository.existsByEmailIgnoreCase(usuario.getEmail())) {
 			throw new GSException("O e-mail informado já está cadastrado.", HttpStatus.BAD_REQUEST);
 		}
-		
+
+		if (usuarioRepository.existsByEmailIgnoreCase(usuario.getEmail())) {
+			throw new GSException("O e-mail informado já está cadastrado.", HttpStatus.BAD_REQUEST);
+		}
+		System.out.println(" tentando salvar ");
 		usuarioRepository.save(usuario);
 	}
 

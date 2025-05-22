@@ -89,4 +89,12 @@ public class UsuarioController {
 		return ResponseEntity.ok((usuario));
 	}
 
+	@Operation(summary = "AAAAAAAAAAAAAAAAA", description = "Aaaaaaaaaaaaaaaaaaa")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Aaaaaaaaaaaaaaaaaaaa") })
+	@GetMapping(path = "/aaaa")
+	public ResponseEntity<String> aaaa() {
+		 System.out.println(" Estoy aqui ");
+		return ResponseEntity.ok(( "aaaaaaaaaaab" ));
+	}
+
 }

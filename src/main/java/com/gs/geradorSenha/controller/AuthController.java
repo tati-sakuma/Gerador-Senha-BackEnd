@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,8 @@ import com.gs.geradorSenha.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 
 @RestController
 @RequestMapping(path = "/auth")
@@ -57,7 +60,29 @@ public class AuthController {
 	@PostMapping("/novo")
 	@ResponseStatus(HttpStatus.CREATED)
 	public void cadastrar(@RequestBody Usuario novoUsuario) throws GSException {
-		processarCadastro(novoUsuario, false);
+		try {
+			processarCadastro(novoUsuario, false);
+		} catch (TransactionSystemException ex) {
+		    Throwable cause = ex.getRootCause();
+		    if (cause instanceof ConstraintViolationException) {
+		        ConstraintViolationException validationEx = (ConstraintViolationException) cause;
+
+		        StringBuilder errorMsg = new StringBuilder("Erro de validação:\n");
+		        for (ConstraintViolation<?> violation : validationEx.getConstraintViolations()) {
+		            errorMsg.append("- ")
+		                    .append(violation.getPropertyPath())
+		                    .append(": ")
+		                    .append(violation.getMessage())
+		                    .append("\n");
+		        }
+
+		        throw new GSException(errorMsg.toString(), HttpStatus.BAD_REQUEST);
+		    } else {
+		        throw new GSException("Erro na transação: " + ex.getMostSpecificCause().getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		    }
+		} catch (Exception ex) {
+	        throw new GSException(ex.getMessage(), HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	@Operation(summary = "Cadastra um novo administrador", description = "Cadastra um usuário com o perfil de administrador.")

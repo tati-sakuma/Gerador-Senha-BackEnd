@@ -43,8 +43,8 @@ public class SecurityConfig {
 				.authorizeHttpRequests(
 						auth -> auth
 							// Rotas públicas que não precisam de autenticação
-							.requestMatchers("/auth/*", "/public").permitAll()
-							
+							.requestMatchers("/auth/**", "/public"/*, "/**"*/).permitAll()
+						
 							// Todas as outras rotas requerem autenticação
 							.anyRequest().authenticated())
 				.httpBasic(Customizer.withDefaults()).oauth2ResourceServer(conf -> conf.jwt(Customizer.withDefaults()));

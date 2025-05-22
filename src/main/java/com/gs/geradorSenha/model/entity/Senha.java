@@ -19,6 +19,8 @@ public class Senha {
 	private Long idSenha;
 
 	private String senha;
+	
+	private String NomeSenha;
 
 	@ManyToOne
 	@JoinColumn(name = "usuario_id")
