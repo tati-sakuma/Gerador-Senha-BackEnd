@@ -7,7 +7,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.gs.geradorSenha.exception.GSException;
+import com.gs.geradorSenha.model.dto.SenhaDTO;
+import com.gs.geradorSenha.model.dto.SenhaListagemDTO;
 import com.gs.geradorSenha.model.entity.Senha;
+import com.gs.geradorSenha.model.entity.Usuario;
 import com.gs.geradorSenha.model.repository.SenhaRepository;
 
 @Service
@@ -16,23 +19,32 @@ public class SenhaService {
 	@Autowired
 	private SenhaRepository senhaRepository;
 
-	public Senha criarSenha(Senha senha) throws GSException {
-		return senhaRepository.save(senha);
+	public HttpStatus cadastrarSenha(SenhaDTO dto, Usuario usuario) throws GSException {
+		if (senhaRepository.existsByNomeAndUsuarioId(dto.getNome(), usuario.getIdUsuario())) {
+			throw new GSException("Nome do item já cadastrado", HttpStatus.CONFLICT);
+		}
+		Senha senha = new Senha();
+		senha.setNome(dto.getNome());
+		senha.setSenha(dto.getSenha());
+		senha.setUsuario(usuario);
+		senhaRepository.save(senha);
+
+		return HttpStatus.CREATED;
 	}
 
-	public void excluirSenha(Long senhaId, Long usuarioId) throws GSException {
-
-		Senha sugestao = senhaRepository.findById(senhaId)
-				.orElseThrow(() -> new GSException("Senha não encontrada.", HttpStatus.NOT_FOUND));
+	public void excluirSenha(String senhaId) throws GSException {
+		System.out.println(" DELETENASDOAJDA: " + senhaId);
+		if (!senhaRepository.existsById(senhaId)) {
+			throw new GSException("Item nao encontrado", HttpStatus.NOT_FOUND);
+		}
+		senhaRepository.deleteById(senhaId);
 	}
 
-	public List<Senha> pesquisarSugestaoTodas() throws GSException {
-		List<Senha> senhas = senhaRepository.findAll();
-
-		return senhas;
+	public List<SenhaListagemDTO> buscarSenhasDoUsuario(Long idUsuario) {
+		return senhaRepository.findAllByUsuarioId(idUsuario);
 	}
 
-	public Senha procurarPorId(Long senhaId) throws GSException {
+	public Senha procurarPorId(String senhaId) throws GSException {
 		Senha sugestao = senhaRepository.findById(senhaId)
 				.orElseThrow(() -> new GSException("Esta senha não foi encontrada!", HttpStatus.NOT_FOUND));
 
