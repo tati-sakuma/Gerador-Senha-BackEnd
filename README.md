@@ -17,5 +17,5 @@ Antes de começar, verifique se você tem instalado/configurado:
 
 ## 2. Build
 
-mvn clean install
-mvn spring-boot:run
+- mvn clean install
+- mvn spring-boot:run
